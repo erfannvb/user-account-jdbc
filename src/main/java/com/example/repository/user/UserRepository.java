@@ -18,4 +18,6 @@ public interface UserRepository {
 
     List<User> loadAll();
 
+    int getNumberOfUsers();
+
 }

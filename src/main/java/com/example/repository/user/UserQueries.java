@@ -14,4 +14,7 @@ public class UserQueries {
 
     public static final String SELECT_ALL_USERS = "select * from users";
 
+    public static final String GET_NUMBER_OF_USERS = "select count(users.first_name)" +
+            " as number_of_users from users";
+
 }

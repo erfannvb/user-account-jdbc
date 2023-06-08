@@ -209,4 +209,38 @@ public class UserRepositoryImpl implements UserRepository {
 
         return userList;
     }
+
+    @Override
+    public int getNumberOfUsers() {
+        int numberOfUsers = 0;
+
+        try {
+
+            connection = JdbcConnection.getConnection();
+            if (connection == null)
+                System.out.println("Error getting the connection.");
+
+            preparedStatement = connection.prepareStatement(GET_NUMBER_OF_USERS);
+
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                numberOfUsers = resultSet.getInt("number_of_users");
+                System.out.println("Number of Users : " + numberOfUsers);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+
+                JdbcConnection.closeConnection(connection);
+                JdbcConnection.closePreparedStatement(preparedStatement);
+                JdbcConnection.closeResultSet(resultSet);
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return numberOfUsers;
+    }
 }

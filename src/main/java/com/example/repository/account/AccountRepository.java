@@ -16,4 +16,6 @@ public interface AccountRepository {
     Account loadById(Long accountId);
 
     List<Account> loadAll();
+
+    int getNumberOfAccounts();
 }

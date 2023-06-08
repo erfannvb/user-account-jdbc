@@ -14,4 +14,7 @@ public class AccountQueries {
 
     public static final String SELECT_ALL_ACCOUNTS = "select * from account";
 
+    public static final String GET_NUMBER_OF_ACCOUNTS = "select count(accounts.account_name)" +
+            " as number_of_accounts from account";
+
 }

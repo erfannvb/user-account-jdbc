@@ -12,6 +12,6 @@ public class UserQueries {
 
     public static final String SELECT_USER_BY_ID = "select * from users where user_id=?";
 
-    public static final String SELECT_ALL = "select * from users";
+    public static final String SELECT_ALL_USERS = "select * from users";
 
 }

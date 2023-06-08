@@ -180,7 +180,7 @@ public class UserRepositoryImpl implements UserRepository {
             if (connection == null)
                 System.out.println("Error getting the connection.");
 
-            preparedStatement = connection.prepareStatement(SELECT_ALL);
+            preparedStatement = connection.prepareStatement(SELECT_ALL_USERS);
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

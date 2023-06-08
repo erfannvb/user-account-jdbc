@@ -13,9 +13,9 @@ import static com.example.repository.user.UserQueries.*;
 
 public class UserRepositoryImpl implements UserRepository {
 
-    Connection connection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
+    private Connection connection = null;
+    private PreparedStatement preparedStatement = null;
+    private ResultSet resultSet = null;
 
     @Override
     public void save(User user) {

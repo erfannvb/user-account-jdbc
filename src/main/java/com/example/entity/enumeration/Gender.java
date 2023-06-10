@@ -1,4 +1,4 @@
-package com.example.entity;
+package com.example.entity.enumeration;
 
 public enum Gender {
     MALE, FEMALE

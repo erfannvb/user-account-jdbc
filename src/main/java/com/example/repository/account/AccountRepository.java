@@ -17,5 +17,7 @@ public interface AccountRepository {
 
     List<Account> loadAll();
 
+    Account[] loadAllUsingArray();
+
     int getNumberOfAccounts();
 }

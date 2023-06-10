@@ -210,6 +210,50 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
+    public Account[] loadAllUsingArray() {
+        Account[] accounts;
+        try {
+
+            connection = JdbcConnection.getConnection();
+            if (connection == null)
+                System.out.println("Error getting the connection.");
+
+            preparedStatement = connection.prepareStatement(SELECT_ALL_ACCOUNTS);
+
+            resultSet = preparedStatement.executeQuery();
+
+            int size = 0;
+            resultSet.last();
+            size = resultSet.getRow();
+            resultSet.beforeFirst();
+
+            accounts = new Account[size];
+
+            int count = 0;
+
+            while (resultSet.next()) {
+                Account account = new Account();
+                account.setAccountId(resultSet.getLong("account_id"));
+                account.setUserId(resultSet.getLong("user_id"));
+                account.setAccountName(resultSet.getString("account_name"));
+                accounts[count++] = account;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                JdbcConnection.closeConnection(connection);
+                JdbcConnection.closePreparedStatement(preparedStatement);
+                JdbcConnection.closeResultSet(resultSet);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return accounts;
+    }
+
+    @Override
     public int getNumberOfAccounts() {
         int numberOfAccounts = 0;
 

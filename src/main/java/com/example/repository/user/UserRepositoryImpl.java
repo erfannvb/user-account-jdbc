@@ -1,9 +1,9 @@
 package com.example.repository.user;
 
 import com.example.connection.JdbcConnection;
-import com.example.entity.Gender;
+import com.example.entity.enumeration.Gender;
 import com.example.entity.User;
-import com.example.entity.UserRole;
+import com.example.entity.enumeration.UserRole;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -55,10 +55,11 @@ public class UserRepositoryImpl implements UserRepository {
             for (int i = 0; i < userList.size(); i++) {
                 preparedStatement.setString(1, userList.get(i).getFirstName());
                 preparedStatement.setString(2, userList.get(i).getLastName());
-                preparedStatement.setObject(3, userList.get(i).getUserRole(), Types.OTHER);
-                preparedStatement.setString(4, userList.get(i).getUsername());
-                preparedStatement.setObject(5, userList.get(i).getGender(), Types.OTHER);
-                preparedStatement.setInt(6, userList.get(i).getAge());
+                preparedStatement.setString(3, userList.get(i).getEmail());
+                preparedStatement.setObject(4, userList.get(i).getUserRole(), Types.OTHER);
+                preparedStatement.setString(5, userList.get(i).getUsername());
+                preparedStatement.setObject(6, userList.get(i).getGender(), Types.OTHER);
+                preparedStatement.setInt(7, userList.get(i).getAge());
                 preparedStatement.addBatch();
             }
 
@@ -88,10 +89,11 @@ public class UserRepositoryImpl implements UserRepository {
 
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
-            preparedStatement.setObject(3, user.getUserRole(), Types.OTHER);
-            preparedStatement.setString(4, user.getUsername());
-            preparedStatement.setObject(5, user.getGender(), Types.OTHER);
-            preparedStatement.setInt(6, user.getAge());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setObject(4, user.getUserRole(), Types.OTHER);
+            preparedStatement.setString(5, user.getUsername());
+            preparedStatement.setObject(6, user.getGender(), Types.OTHER);
+            preparedStatement.setInt(7, user.getAge());
 
             preparedStatement.executeUpdate();
 
@@ -149,6 +151,7 @@ public class UserRepositoryImpl implements UserRepository {
                 user.setUserId(resultSet.getLong("user_id"));
                 user.setFirstName(resultSet.getString("first_name"));
                 user.setLastName(resultSet.getString("last_name"));
+                user.setEmail(resultSet.getString("email"));
                 user.setUserRole((UserRole) resultSet.getObject("user_role"));
                 user.setUsername(resultSet.getString("username"));
                 user.setGender((Gender) resultSet.getObject("gender"));
@@ -188,6 +191,7 @@ public class UserRepositoryImpl implements UserRepository {
                 user.setUserId(resultSet.getLong("user_id"));
                 user.setFirstName(resultSet.getString("first_name"));
                 user.setLastName(resultSet.getString("last_name"));
+                user.setEmail(resultSet.getString("email"));
                 user.setUserRole((UserRole) resultSet.getObject("user_role"));
                 user.setUsername(resultSet.getString("username"));
                 user.setGender((Gender) resultSet.getObject("gender"));
@@ -208,6 +212,56 @@ public class UserRepositoryImpl implements UserRepository {
         }
 
         return userList;
+    }
+
+    @Override
+    public User[] loadAllUsingArray() {
+        User[] users;
+        try {
+
+            connection = JdbcConnection.getConnection();
+            if (connection == null)
+                System.out.println("Error getting the connection.");
+
+            preparedStatement = connection.prepareStatement(SELECT_ALL_USERS);
+
+            resultSet = preparedStatement.executeQuery();
+
+            int size = 0;
+
+            resultSet.last();
+            size = resultSet.getRow();
+            resultSet.beforeFirst();
+
+            users = new User[size];
+
+            int count = 0;
+
+            while (resultSet.next()) {
+                User user = new User();
+                user.setUserId(resultSet.getLong("user_id"));
+                user.setFirstName(resultSet.getString("first_name"));
+                user.setLastName(resultSet.getString("last_name"));
+                user.setEmail(resultSet.getString("email"));
+                user.setUserRole((UserRole) resultSet.getObject("user_role"));
+                user.setUsername(resultSet.getString("username"));
+                user.setGender((Gender) resultSet.getObject("gender"));
+                user.setAge(resultSet.getInt("age"));
+                users[count++] = user;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                JdbcConnection.closeConnection(connection);
+                JdbcConnection.closePreparedStatement(preparedStatement);
+                JdbcConnection.closeResultSet(resultSet);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return users;
     }
 
     @Override

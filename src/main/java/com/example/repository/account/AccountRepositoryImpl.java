@@ -48,6 +48,39 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
+    public long saveAndReturnAccountId(Account account) {
+        long accountId = 0;
+        try {
+
+            connection = JdbcConnection.getConnection();
+            if (connection == null)
+                System.out.println("Error getting the connection.");
+
+            preparedStatement = connection.prepareStatement(INSERT_INTO_ACCOUNT,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+
+            preparedStatement.setString(1, account.getAccountName());
+            preparedStatement.setLong(2, account.getUserId());
+
+            resultSet = preparedStatement.getGeneratedKeys();
+            resultSet.next();
+            accountId = resultSet.getLong("account_id");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                JdbcConnection.closeConnection(connection);
+                JdbcConnection.closePreparedStatement(preparedStatement);
+                JdbcConnection.closeResultSet(resultSet);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return accountId;
+    }
+
+    @Override
     public void saveAll(List<Account> accountList) {
         try {
 
@@ -286,5 +319,34 @@ public class AccountRepositoryImpl implements AccountRepository {
         }
 
         return numberOfAccounts;
+    }
+
+    @Override
+    public long loadId() {
+        long accountId = 0;
+        try {
+
+            connection = JdbcConnection.getConnection();
+            if (connection == null)
+                System.out.println("Error getting the connection.");
+
+            preparedStatement = connection.prepareStatement(SELECT_ALL_ACCOUNTS);
+
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next())
+                accountId = resultSet.getLong("account_id");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                JdbcConnection.closeConnection(connection);
+                JdbcConnection.closePreparedStatement(preparedStatement);
+                JdbcConnection.closeResultSet(resultSet);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return accountId;
     }
 }

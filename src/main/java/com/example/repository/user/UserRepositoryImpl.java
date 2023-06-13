@@ -43,6 +43,43 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public long saveAndReturnUserId(User user) {
+        long userId = 0;
+        try {
+
+            connection = JdbcConnection.getConnection();
+            if (connection == null)
+                System.out.println("Error getting the connection.");
+
+            preparedStatement = connection.prepareStatement(INSERT_INTO_USER,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
+
+            preparedStatement.setString(1, user.getFirstName());
+            preparedStatement.setString(2, user.getLastName());
+            preparedStatement.setObject(3, user.getUserRole(), Types.OTHER);
+            preparedStatement.setString(4, user.getUsername());
+            preparedStatement.setObject(5, user.getGender(), Types.OTHER);
+            preparedStatement.setInt(6, user.getAge());
+
+            resultSet = preparedStatement.getGeneratedKeys();
+            resultSet.next();
+            userId = resultSet.getLong("user_id");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                JdbcConnection.closeConnection(connection);
+                JdbcConnection.closePreparedStatement(preparedStatement);
+                JdbcConnection.closeResultSet(resultSet);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return userId;
+    }
+
+    @Override
     public void saveAll(List<User> userList) {
         try {
 
@@ -296,5 +333,34 @@ public class UserRepositoryImpl implements UserRepository {
             }
         }
         return numberOfUsers;
+    }
+
+    @Override
+    public long loadId() {
+        long userId = 0;
+        try {
+
+            connection = JdbcConnection.getConnection();
+            if (connection == null)
+                System.out.println("Error getting the connection.");
+
+            preparedStatement = connection.prepareStatement(SELECT_ALL_USERS);
+
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next())
+                userId = resultSet.getLong("user_id");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                JdbcConnection.closeConnection(connection);
+                JdbcConnection.closePreparedStatement(preparedStatement);
+                JdbcConnection.closeResultSet(resultSet);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return userId;
     }
 }

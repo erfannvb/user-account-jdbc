@@ -7,6 +7,8 @@ import java.util.List;
 public interface AccountRepository {
     void save(Account account);
 
+    long saveAndReturnAccountId(Account account);
+
     void saveAll(List<Account> accountList);
 
     void update(Account account);
@@ -20,4 +22,6 @@ public interface AccountRepository {
     Account[] loadAllUsingArray();
 
     int getNumberOfAccounts();
+
+    long loadId();
 }

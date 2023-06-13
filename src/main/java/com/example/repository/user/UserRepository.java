@@ -8,6 +8,8 @@ public interface UserRepository {
 
     void save(User user);
 
+    long saveAndReturnUserId(User user);
+
     void saveAll(List<User> userList);
 
     void update(User user);
@@ -21,5 +23,7 @@ public interface UserRepository {
     User[] loadAllUsingArray();
 
     int getNumberOfUsers();
+
+    long loadId();
 
 }

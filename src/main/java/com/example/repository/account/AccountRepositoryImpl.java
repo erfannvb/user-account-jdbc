@@ -251,7 +251,9 @@ public class AccountRepositoryImpl implements AccountRepository {
             if (connection == null)
                 System.out.println("Error getting the connection.");
 
-            preparedStatement = connection.prepareStatement(SELECT_ALL_ACCOUNTS);
+            preparedStatement = connection.prepareStatement(SELECT_ALL_ACCOUNTS,
+                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY);
 
             resultSet = preparedStatement.executeQuery();
 

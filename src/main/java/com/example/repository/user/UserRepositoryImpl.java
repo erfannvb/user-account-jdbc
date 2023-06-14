@@ -19,6 +19,15 @@ public class UserRepositoryImpl implements UserRepository {
 
     private static final String CONNECTION_ERROR = "Error getting the connection.";
 
+    private static final String USER_ID = "user_id";
+    private static final String FIRST_NAME = "first_name";
+    private static final String LAST_NAME = "last_name";
+    private static final String EMAIL = "email";
+    private static final String USER_ROLE = "user_role";
+    private static final String USERNAME = "username";
+    private static final String GENDER = "gender";
+    private static final String AGE = "age";
+
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
@@ -33,18 +42,17 @@ public class UserRepositoryImpl implements UserRepository {
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_USER);
 
-            preparedStatement.setString(1, user.getFirstName());
-            preparedStatement.setString(2, user.getLastName());
-            preparedStatement.setObject(3, user.getUserRole(), Types.OTHER);
-            preparedStatement.setString(4, user.getUsername());
-            preparedStatement.setObject(5, user.getGender(), Types.OTHER);
-            preparedStatement.setInt(6, user.getAge());
+            setData(user);
 
             preparedStatement.execute();
-            System.out.println("New user added to the database successfully.");
+            logger.info("New user added to the database successfully.");
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
+        } finally {
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
     }
 
@@ -58,29 +66,20 @@ public class UserRepositoryImpl implements UserRepository {
                 logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_USER,
-                    PreparedStatement.RETURN_GENERATED_KEYS);
+                    Statement.RETURN_GENERATED_KEYS);
 
-            preparedStatement.setString(1, user.getFirstName());
-            preparedStatement.setString(2, user.getLastName());
-            preparedStatement.setObject(3, user.getUserRole(), Types.OTHER);
-            preparedStatement.setString(4, user.getUsername());
-            preparedStatement.setObject(5, user.getGender(), Types.OTHER);
-            preparedStatement.setInt(6, user.getAge());
+            setData(user);
 
             resultSet = preparedStatement.getGeneratedKeys();
             resultSet.next();
-            userId = resultSet.getLong("user_id");
+            userId = resultSet.getLong(USER_ID);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
         return userId;
     }
@@ -95,28 +94,18 @@ public class UserRepositoryImpl implements UserRepository {
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_USER);
 
-            for (int i = 0; i < userList.size(); i++) {
-                preparedStatement.setString(1, userList.get(i).getFirstName());
-                preparedStatement.setString(2, userList.get(i).getLastName());
-                preparedStatement.setString(3, userList.get(i).getEmail());
-                preparedStatement.setObject(4, userList.get(i).getUserRole(), Types.OTHER);
-                preparedStatement.setString(5, userList.get(i).getUsername());
-                preparedStatement.setObject(6, userList.get(i).getGender(), Types.OTHER);
-                preparedStatement.setInt(7, userList.get(i).getAge());
-                preparedStatement.addBatch();
+            for (User user : userList) {
+                setData(user);
             }
 
             preparedStatement.executeBatch();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
     }
 
@@ -141,14 +130,11 @@ public class UserRepositoryImpl implements UserRepository {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
     }
 
@@ -165,14 +151,11 @@ public class UserRepositoryImpl implements UserRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
     }
 
@@ -191,28 +174,16 @@ public class UserRepositoryImpl implements UserRepository {
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                user.setUserId(resultSet.getLong("user_id"));
-                user.setFirstName(resultSet.getString("first_name"));
-                user.setLastName(resultSet.getString("last_name"));
-                user.setEmail(resultSet.getString("email"));
-                user.setUserRole((UserRole) resultSet.getObject("user_role"));
-                user.setUsername(resultSet.getString("username"));
-                user.setGender((Gender) resultSet.getObject("gender"));
-                user.setAge(resultSet.getInt("age"));
+                setUser(user);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
-
         return user;
     }
 
@@ -231,29 +202,17 @@ public class UserRepositoryImpl implements UserRepository {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
-                user.setUserId(resultSet.getLong("user_id"));
-                user.setFirstName(resultSet.getString("first_name"));
-                user.setLastName(resultSet.getString("last_name"));
-                user.setEmail(resultSet.getString("email"));
-                user.setUserRole((UserRole) resultSet.getObject("user_role"));
-                user.setUsername(resultSet.getString("username"));
-                user.setGender((Gender) resultSet.getObject("gender"));
-                user.setAge(resultSet.getInt("age"));
+                setUser(user);
                 userList.add(user);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
-
         return userList;
     }
 
@@ -284,27 +243,16 @@ public class UserRepositoryImpl implements UserRepository {
 
             while (resultSet.next()) {
                 User user = new User();
-                user.setUserId(resultSet.getLong("user_id"));
-                user.setFirstName(resultSet.getString("first_name"));
-                user.setLastName(resultSet.getString("last_name"));
-                user.setEmail(resultSet.getString("email"));
-                user.setUserRole((UserRole) resultSet.getObject("user_role"));
-                user.setUsername(resultSet.getString("username"));
-                user.setGender((Gender) resultSet.getObject("gender"));
-                user.setAge(resultSet.getInt("age"));
+                setUser(user);
                 users[count++] = user;
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
         return users;
     }
@@ -312,7 +260,6 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public int getNumberOfUsers() {
         int numberOfUsers = 0;
-
         try {
 
             connection = getConnection();
@@ -328,17 +275,11 @@ public class UserRepositoryImpl implements UserRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
         return numberOfUsers;
     }
@@ -356,24 +297,63 @@ public class UserRepositoryImpl implements UserRepository {
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next())
-                userId = resultSet.getLong("user_id");
+                userId = resultSet.getLong(USER_ID);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
         return userId;
+    }
+
+    private void setUser(User user) throws SQLException {
+        user.setUserId(resultSet.getLong(USER_ID));
+        user.setFirstName(resultSet.getString(FIRST_NAME));
+        user.setLastName(resultSet.getString(LAST_NAME));
+        user.setEmail(resultSet.getString(EMAIL));
+        user.setUserRole((UserRole) resultSet.getObject(USER_ROLE));
+        user.setUsername(resultSet.getString(USERNAME));
+        user.setGender((Gender) resultSet.getObject(GENDER));
+        user.setAge(resultSet.getInt(AGE));
+    }
+
+    private void setData(User user) throws SQLException {
+        preparedStatement.setString(1, user.getFirstName());
+        preparedStatement.setString(2, user.getLastName());
+        preparedStatement.setObject(3, user.getUserRole(), Types.OTHER);
+        preparedStatement.setString(4, user.getUsername());
+        preparedStatement.setObject(5, user.getGender(), Types.OTHER);
+        preparedStatement.setInt(6, user.getAge());
     }
 
     private static Connection getConnection() throws SQLException {
         return JdbcConnection.getConnection();
     }
 
+    private void closeConnection() {
+        try {
+            JdbcConnection.closeConnection(connection);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private void closePreparedStatement() {
+        try {
+            JdbcConnection.closePreparedStatement(preparedStatement);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private void closeResultSet() {
+        try {
+            JdbcConnection.closeResultSet(resultSet);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 }

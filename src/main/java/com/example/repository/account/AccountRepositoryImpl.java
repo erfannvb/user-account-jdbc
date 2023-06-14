@@ -5,10 +5,7 @@ import com.example.entity.Account;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +16,10 @@ public class AccountRepositoryImpl implements AccountRepository {
     private static final Logger logger = LoggerFactory.getLogger(AccountRepositoryImpl.class);
 
     private static final String CONNECTION_ERROR = "Error getting the connection.";
+
+    private static final String ACCOUNT_ID = "account_id";
+    private static final String USER_ID = "user_id";
+    private static final String ACCOUNT_NAME = "account_name";
 
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
@@ -40,16 +41,10 @@ public class AccountRepositoryImpl implements AccountRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
         }
     }
 
@@ -63,25 +58,21 @@ public class AccountRepositoryImpl implements AccountRepository {
                 logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_ACCOUNT,
-                    PreparedStatement.RETURN_GENERATED_KEYS);
+                    Statement.RETURN_GENERATED_KEYS);
 
             preparedStatement.setString(1, account.getAccountName());
             preparedStatement.setLong(2, account.getUserId());
 
             resultSet = preparedStatement.getGeneratedKeys();
             resultSet.next();
-            accountId = resultSet.getLong("account_id");
+            accountId = resultSet.getLong(ACCOUNT_ID);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
         return accountId;
     }
@@ -105,16 +96,10 @@ public class AccountRepositoryImpl implements AccountRepository {
             preparedStatement.executeBatch();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
         }
     }
 
@@ -135,16 +120,10 @@ public class AccountRepositoryImpl implements AccountRepository {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
         }
     }
 
@@ -161,16 +140,10 @@ public class AccountRepositoryImpl implements AccountRepository {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
         }
     }
 
@@ -189,23 +162,15 @@ public class AccountRepositoryImpl implements AccountRepository {
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                account.setAccountId(resultSet.getLong("account_id"));
-                account.setAccountName(resultSet.getString("account_name"));
-                account.setUserId(resultSet.getLong("user_id"));
+                setAccount(account);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
 
         return account;
@@ -226,23 +191,16 @@ public class AccountRepositoryImpl implements AccountRepository {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Account account = new Account();
-                account.setAccountId(resultSet.getLong("account_id"));
-                account.setAccountName(resultSet.getString("account_name"));
-                account.setUserId(resultSet.getLong("user_id"));
+                setAccount(account);
+                accountList.add(account);
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
 
         return accountList;
@@ -274,22 +232,16 @@ public class AccountRepositoryImpl implements AccountRepository {
 
             while (resultSet.next()) {
                 Account account = new Account();
-                account.setAccountId(resultSet.getLong("account_id"));
-                account.setUserId(resultSet.getLong("user_id"));
-                account.setAccountName(resultSet.getString("account_name"));
+                setAccount(account);
                 accounts[count++] = account;
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
         return accounts;
     }
@@ -313,17 +265,11 @@ public class AccountRepositoryImpl implements AccountRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
 
         return numberOfAccounts;
@@ -342,24 +288,50 @@ public class AccountRepositoryImpl implements AccountRepository {
 
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next())
-                accountId = resultSet.getLong("account_id");
+                accountId = resultSet.getLong(ACCOUNT_ID);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         } finally {
-            try {
-                JdbcConnection.closeConnection(connection);
-                JdbcConnection.closePreparedStatement(preparedStatement);
-                JdbcConnection.closeResultSet(resultSet);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            closeConnection();
+            closePreparedStatement();
+            closeResultSet();
         }
         return accountId;
     }
 
+    private void setAccount(Account account) throws SQLException {
+        account.setAccountId(resultSet.getLong(ACCOUNT_ID));
+        account.setUserId(resultSet.getLong(USER_ID));
+        account.setAccountName(resultSet.getString(ACCOUNT_NAME));
+    }
+
     private static Connection getConnection() throws SQLException {
         return JdbcConnection.getConnection();
+    }
+
+    private void closeConnection() {
+        try {
+            JdbcConnection.closeConnection(connection);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private void closePreparedStatement() {
+        try {
+            JdbcConnection.closePreparedStatement(preparedStatement);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private void closeResultSet() {
+        try {
+            JdbcConnection.closeResultSet(resultSet);
+        } catch (SQLException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
 }

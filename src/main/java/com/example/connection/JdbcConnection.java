@@ -12,7 +12,10 @@ import static com.example.connection.JdbcConstant.*;
 
 public class JdbcConnection {
 
-    private static HikariDataSource dataSource;
+    private JdbcConnection() {
+    }
+
+    private static final HikariDataSource dataSource;
 
     static {
         HikariConfig config = new HikariConfig();

@@ -2,6 +2,8 @@ package com.example.repository.account;
 
 import com.example.connection.JdbcConnection;
 import com.example.entity.Account;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,6 +16,10 @@ import static com.example.repository.account.AccountQueries.*;
 
 public class AccountRepositoryImpl implements AccountRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(AccountRepositoryImpl.class);
+
+    private static final String CONNECTION_ERROR = "Error getting the connection.";
+
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
@@ -22,9 +28,9 @@ public class AccountRepositoryImpl implements AccountRepository {
     public void save(Account account) {
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_ACCOUNT);
 
@@ -52,9 +58,9 @@ public class AccountRepositoryImpl implements AccountRepository {
         long accountId = 0;
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_ACCOUNT,
                     PreparedStatement.RETURN_GENERATED_KEYS);
@@ -84,9 +90,9 @@ public class AccountRepositoryImpl implements AccountRepository {
     public void saveAll(List<Account> accountList) {
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_ACCOUNT);
 
@@ -116,9 +122,9 @@ public class AccountRepositoryImpl implements AccountRepository {
     public void update(Account account) {
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(UPDATE_ACCOUNT);
 
@@ -146,9 +152,9 @@ public class AccountRepositoryImpl implements AccountRepository {
     public void deleteById(Long accountId) {
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(DELETE_ACCOUNT_BY_ID);
             preparedStatement.setLong(1, accountId);
@@ -174,9 +180,9 @@ public class AccountRepositoryImpl implements AccountRepository {
 
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(SELECT_ACCOUNT_BY_ID);
             preparedStatement.setLong(1, accountId);
@@ -211,9 +217,9 @@ public class AccountRepositoryImpl implements AccountRepository {
 
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(SELECT_ALL_ACCOUNTS);
 
@@ -247,9 +253,9 @@ public class AccountRepositoryImpl implements AccountRepository {
         Account[] accounts;
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(SELECT_ALL_ACCOUNTS,
                     ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -294,9 +300,9 @@ public class AccountRepositoryImpl implements AccountRepository {
 
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(GET_NUMBER_OF_ACCOUNTS);
 
@@ -328,9 +334,9 @@ public class AccountRepositoryImpl implements AccountRepository {
         long accountId = 0;
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(SELECT_ALL_ACCOUNTS);
 
@@ -351,4 +357,9 @@ public class AccountRepositoryImpl implements AccountRepository {
         }
         return accountId;
     }
+
+    private static Connection getConnection() throws SQLException {
+        return JdbcConnection.getConnection();
+    }
+
 }

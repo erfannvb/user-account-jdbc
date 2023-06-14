@@ -4,6 +4,8 @@ import com.example.connection.JdbcConnection;
 import com.example.entity.enumeration.Gender;
 import com.example.entity.User;
 import com.example.entity.enumeration.UserRole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,6 +15,10 @@ import static com.example.repository.user.UserQueries.*;
 
 public class UserRepositoryImpl implements UserRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserRepositoryImpl.class);
+
+    private static final String CONNECTION_ERROR = "Error getting the connection.";
+
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
@@ -21,9 +27,9 @@ public class UserRepositoryImpl implements UserRepository {
     public void save(User user) {
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_USER);
 
@@ -47,9 +53,9 @@ public class UserRepositoryImpl implements UserRepository {
         long userId = 0;
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_USER,
                     PreparedStatement.RETURN_GENERATED_KEYS);
@@ -83,9 +89,9 @@ public class UserRepositoryImpl implements UserRepository {
     public void saveAll(List<User> userList) {
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_USER);
 
@@ -118,9 +124,9 @@ public class UserRepositoryImpl implements UserRepository {
     public void update(User user) {
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(UPDATE_USER);
 
@@ -150,9 +156,9 @@ public class UserRepositoryImpl implements UserRepository {
     public void deleteById(Long userId) {
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(DELETE_USER_BY_ID);
             preparedStatement.setLong(1, userId);
@@ -176,9 +182,9 @@ public class UserRepositoryImpl implements UserRepository {
 
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(SELECT_USER_BY_ID);
             preparedStatement.setLong(1, userId);
@@ -216,9 +222,9 @@ public class UserRepositoryImpl implements UserRepository {
 
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(SELECT_ALL_USERS);
 
@@ -256,9 +262,9 @@ public class UserRepositoryImpl implements UserRepository {
         User[] users;
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(SELECT_ALL_USERS,
                     ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -309,9 +315,9 @@ public class UserRepositoryImpl implements UserRepository {
 
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(GET_NUMBER_OF_USERS);
 
@@ -342,9 +348,9 @@ public class UserRepositoryImpl implements UserRepository {
         long userId = 0;
         try {
 
-            connection = JdbcConnection.getConnection();
+            connection = getConnection();
             if (connection == null)
-                System.out.println("Error getting the connection.");
+                logger.info(CONNECTION_ERROR);
 
             preparedStatement = connection.prepareStatement(SELECT_ALL_USERS);
 
@@ -365,4 +371,9 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return userId;
     }
+
+    private static Connection getConnection() throws SQLException {
+        return JdbcConnection.getConnection();
+    }
+
 }

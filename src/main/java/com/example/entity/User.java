@@ -3,9 +3,7 @@ package com.example.entity;
 
 import com.example.entity.enumeration.Gender;
 import com.example.entity.enumeration.UserRole;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor

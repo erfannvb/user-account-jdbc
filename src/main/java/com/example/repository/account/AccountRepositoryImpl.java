@@ -43,8 +43,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
+            closeAll();
         }
     }
 
@@ -70,9 +69,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
         return accountId;
     }
@@ -87,9 +84,9 @@ public class AccountRepositoryImpl implements AccountRepository {
 
             preparedStatement = connection.prepareStatement(INSERT_INTO_ACCOUNT);
 
-            for (int i = 0; i < accountList.size(); i++) {
-                preparedStatement.setString(1, accountList.get(i).getAccountName());
-                preparedStatement.setLong(2, accountList.get(i).getUserId());
+            for (Account account : accountList) {
+                preparedStatement.setString(1, account.getAccountName());
+                preparedStatement.setLong(2, account.getUserId());
                 preparedStatement.addBatch();
             }
 
@@ -98,8 +95,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
+            closeAll();
         }
     }
 
@@ -122,8 +118,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
+            closeAll();
         }
     }
 
@@ -142,8 +137,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
+            closeAll();
         }
     }
 
@@ -168,9 +162,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
 
         return account;
@@ -198,9 +190,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
 
         return accountList;
@@ -239,9 +229,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
         return accounts;
     }
@@ -267,9 +255,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
 
         return numberOfAccounts;
@@ -293,9 +279,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
         return accountId;
     }
@@ -308,6 +292,12 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     private static Connection getConnection() throws SQLException {
         return JdbcConnection.getConnection();
+    }
+
+    private void closeAll() {
+        closeConnection();
+        closePreparedStatement();
+        closeResultSet();
     }
 
     private void closeConnection() {

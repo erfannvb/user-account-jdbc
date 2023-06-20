@@ -3,17 +3,13 @@ package com.example.service;
 import com.example.entity.User;
 import com.example.entity.enumeration.Gender;
 import com.example.entity.enumeration.UserRole;
-import com.example.repository.user.UserRepository;
+import com.example.repository.user.UserRepositoryImpl;
 
 import java.util.regex.Pattern;
 
 public class UserService {
 
-    private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepositoryImpl userRepository = new UserRepositoryImpl();
 
     public void saveUser(String firstName, String lastName, String email, UserRole userRole,
                          String username, Gender gender, int age) {
@@ -38,6 +34,13 @@ public class UserService {
         } else {
             System.out.println("Invalid input!!!");
             System.exit(0);
+        }
+    }
+
+    public void printUserInfo() {
+        User[] users = userRepository.loadAllUsingArray();
+        for (User user : users) {
+            System.out.println(user.getFirstName() + " " + user.getLastName());
         }
     }
 

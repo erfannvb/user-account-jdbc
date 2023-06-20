@@ -50,15 +50,13 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
     }
 
     @Override
     public long saveAndReturnUserId(User user) {
-        long userId = 0;
+        long userId;
         try {
 
             connection = getConnection();
@@ -77,9 +75,7 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
         return userId;
     }
@@ -96,6 +92,7 @@ public class UserRepositoryImpl implements UserRepository {
 
             for (User user : userList) {
                 setData(user);
+                preparedStatement.addBatch();
             }
 
             preparedStatement.executeBatch();
@@ -103,9 +100,7 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
     }
 
@@ -119,22 +114,14 @@ public class UserRepositoryImpl implements UserRepository {
 
             preparedStatement = connection.prepareStatement(UPDATE_USER);
 
-            preparedStatement.setString(1, user.getFirstName());
-            preparedStatement.setString(2, user.getLastName());
-            preparedStatement.setString(3, user.getEmail());
-            preparedStatement.setObject(4, user.getUserRole(), Types.OTHER);
-            preparedStatement.setString(5, user.getUsername());
-            preparedStatement.setObject(6, user.getGender(), Types.OTHER);
-            preparedStatement.setInt(7, user.getAge());
+            setData(user);
 
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
     }
 
@@ -153,9 +140,7 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
     }
 
@@ -180,9 +165,7 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
         return user;
     }
@@ -209,9 +192,7 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
         return userList;
     }
@@ -250,9 +231,7 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
         return users;
     }
@@ -277,9 +256,7 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
         return numberOfUsers;
     }
@@ -302,9 +279,7 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         } finally {
-            closeConnection();
-            closePreparedStatement();
-            closeResultSet();
+            closeAll();
         }
         return userId;
     }
@@ -331,6 +306,12 @@ public class UserRepositoryImpl implements UserRepository {
 
     private static Connection getConnection() throws SQLException {
         return JdbcConnection.getConnection();
+    }
+
+    private void closeAll() {
+        closeConnection();
+        closePreparedStatement();
+        closeResultSet();
     }
 
     private void closeConnection() {

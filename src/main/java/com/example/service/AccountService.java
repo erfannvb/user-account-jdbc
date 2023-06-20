@@ -2,14 +2,11 @@ package com.example.service;
 
 import com.example.entity.Account;
 import com.example.repository.account.AccountRepository;
+import com.example.repository.account.AccountRepositoryImpl;
 
 public class AccountService {
 
-    private final AccountRepository accountRepository;
-
-    public AccountService(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
-    }
+    private final AccountRepositoryImpl accountRepository = new AccountRepositoryImpl();
 
     public void saveAccount(Long userId, String accountName) {
         Account account = new Account();
@@ -17,6 +14,13 @@ public class AccountService {
         account.setUserId(userId);
         account.setAccountName(accountName);
         accountRepository.save(account);
+    }
+
+    public void printAccountInfo() {
+        Account[] accounts = accountRepository.loadAllUsingArray();
+        for (Account account : accounts) {
+            System.out.println(account.getAccountName());
+        }
     }
 
     private long accountIdGenerator() {
